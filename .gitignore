@@ -1,0 +1,7 @@
+# 하위 프로젝트(코드 레포)는 각자 git 관리 — voltron-personal 안에 물리적으로 중첩하되 추적 제외
+# (코드 레포는 각자 독립 git. 계층 상속을 위해 물리적으로 중첩만 하고 추적은 제외)
+thewrong-ui/
+
+# macOS
+.DS_Store
+*.log
