@@ -10,7 +10,7 @@
 
 - **import 절대경로 `@/` 강제** — 폴더 밖 참조 한정. 같은 폴더 형제(`./types`)는 허용.
 - **`any` 타입 금지** — `unknown` 또는 구체 타입.
-- **보호 브랜치 직접 작업 주의** — 프로젝트별 보호 브랜치는 각 `*-workflow/CLAUDE.md` 참조.
+- **보호 브랜치(`main`/`develop`) 직접 작업 금지** — git 전략은 [`guides/git-workflow.md`](guides/git-workflow.md).
 
 ## 코딩 원칙 (디폴트 잣대, 위쪽이 우선)
 
@@ -23,7 +23,7 @@
 ## 커밋
 
 - **제목 한 줄만** — body, Co-Authored-By 트레일러 금지.
-- 포맷·브랜치 전략은 프로젝트별 `*-workflow/CLAUDE.md` 참조.
+- 브랜치 전략: [`guides/git-workflow.md`](guides/git-workflow.md) (`main` + `develop` + `feat/*` 3종, 공통).
 
 ## 오케스트레이션
 
@@ -40,22 +40,40 @@
 
 ## 구조
 
+각 프로젝트는 **컨테이너 폴더** 안에 정본 `CLAUDE.md` + 워크플로 + 코드 레포를 묶는다.
+컨테이너에 물리적으로 중첩되므로 상위 `CLAUDE.md`가 **자동 상속**된다 (코드 레포에 별도 복사 불필요).
+
 ```
 voltron-personal/
   CLAUDE.md              ← 이 파일 (개인 공통 원칙)
   bootstrap/             ← 하네스 진화 메타원칙
+  guides/
+    git-workflow.md      ← 공통 git 전략 (main/develop/feat)
   .claude/
     agents/reviewer.md   ← 공통 에이전트
     commands/ralph.md    ← 공통 커맨드
-  <project>-workflow/    ← 프로젝트 전용
-    CLAUDE.md            ← 프로젝트 정체성·정책 (정본)
-    hooks/               ← 프로젝트 전용 훅
-    lessons/             ← 실패 기록
-    sync-claude.sh       ← 코드 레포 .claude/로 동기화
+  <project>/             ← 컨테이너 (예: thewrong-ui/, escapist/)
+    CLAUDE.md            ← 정본 (프로젝트 정체성·정책) ★상위 자동 상속
+    <project>-workflow/  ← 하네스 (voltron-personal git이 추적)
+      hooks/             ← 프로젝트 전용 훅
+      lessons/           ← 실패 기록 (증상→원인→교훈)
+      why-tho/           ← 설계 결정 이유
+      cookbook/          ← 재사용 패턴·체크리스트
+      settings.json      ← 훅 등록 (코드 레포로 sync)
+      sync-claude.sh     ← .claude/ 만 코드 레포로 동기화 (자동 실행 — 아래 참조)
+    <project>-code/      ← 코드 레포 (.gitignore — 각자 독립 git)
 ```
+
+> **CLAUDE.md vs .claude/**: 상위 `CLAUDE.md`는 디렉토리 중첩으로 자동 상속되지만, `.claude/`(agents·commands·hooks·settings)는 git 레포 루트 것만 적용돼 상속 안 됨. 그래서 `.claude/`만 코드 레포에 복사한다.
+>
+> **정본·공개·자동 sync**:
+> - 정본은 voltron-personal(비공개 하네스 레포)이 추적한다. 코드 레포의 `CLAUDE.md`·`.claude/`는 코드 레포 `.gitignore`로 빠져 **공개되지 않는다**.
+> - `CLAUDE.md`는 자동 상속이라 코드 레포에 사본조차 두지 않는다 (복사 안 함).
+> - `.claude/`는 voltron-personal의 정본 자산(`.claude/agents·commands`, `<project>-workflow/{hooks,settings.json}`)을 **편집하면 자동으로** 코드 레포에 sync된다 (`.claude/hooks/auto-sync-claude.sh`). 수동 실행도 가능: `bash <project>/<project>-workflow/sync-claude.sh`.
 
 ## 하위 프로젝트
 
-| 프로젝트 | 설명 | 코드 레포 |
+| 컨테이너 | 설명 | 코드 레포 |
 |----------|------|-----------|
-| `thewrong-ui-workflow/` | 개인용 React UI 컴포넌트 라이브러리 (@thewrong/ui) | thewronghand/thewrong-ui |
+| `thewrong-ui/` | 개인용 React UI 컴포넌트 라이브러리 (@thewrong/ui) | thewronghand/thewrong-ui |
+| `escapist/` | Claude CLI 기반 면접 준비 앱 | thewronghand/escapist |

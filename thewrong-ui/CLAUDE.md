@@ -9,15 +9,19 @@
 1. **`any` 금지** — `unknown` 또는 구체 타입. (table/select의 forwardRef 제네릭 우회용 `<T = any>`만 알려진 예외)
 2. **폴더 밖 import는 절대경로 `@/`** — 같은 폴더 형제(`./types`)만 상대경로 허용. `../` 상위 참조 금지.
 3. **번들 의존성 정책** — 무거운 의존(motion·@floating-ui·react-hot-toast·@dnd-kit·@tanstack/react-virtual·date-fns)은 **optional peer + vite external**. 가벼운 필수(lucide-react·clsx·tailwind-merge)만 **dependency(번들 포함)**. 셋(peer 선언 / external 배열 / dependency)이 항상 정합해야 함.
-4. **dedupe 동기화** — 싱글톤성 peer를 추가하면 `vite.config.ts` dedupe + `.storybook/main.ts` viteFinal dedupe **양쪽 모두**에 등록. 한쪽만 하면 인스턴스가 갈라져 런타임 버그(toast 큐/floating 컨텍스트 분리). → [[lessons/2026-06-13-floating-ui-dedupe-gap]]
+4. **dedupe 동기화** — 싱글톤성 peer를 추가하면 `vite.config.ts` dedupe + `.storybook/main.ts` viteFinal dedupe **양쪽 모두**에 등록. 한쪽만 하면 인스턴스가 갈라져 런타임 버그(toast 큐/floating 컨텍스트 분리). → `thewrong-ui-workflow/lessons/2026-06-13-floating-ui-dedupe-gap.md`
 5. **빌드 성공 ≠ 노출** — 새 컴포넌트는 `src/index.ts`의 `export * from`까지 확인. 누락해도 빌드는 통과한다.
 
 ## 작업 하네스
 
 - **큰 작업**: `/ralph` — 태스크 분해(사용자 승인) → 메인 구현 → `reviewer` 독립 리뷰 루프. executor 없음.
 - **구현 후 리뷰**: 5개 파일 이상/탐색 필요한 변경은 `reviewer` 에이전트로 diff 기반 리뷰(구현 의도 미전달 — 자가평가 편향 방지). 1-2줄 수정은 생략.
-- **훅**: 편집 시 prettier + 컨벤션 체크(any/상대경로) + typecheck 자동 실행 (`.claude/hooks/`).
-- **실패 기록**: 같은 실수가 반복되면 `lessons/`에 "증상 → 원인 → 교훈" 기록. 하네스는 실패에서 자란다 — 가상의 미래가 아니라 실제 발생한 것에만 규칙·훅을 추가. (메타 원칙은 voltron `bootstrap/` 참조)
+- **훅**: 편집 시 prettier + 컨벤션 체크(any/상대경로) + typecheck 자동 실행 (`thewrong-ui-workflow/hooks/`).
+- **지식 축적**:
+  - 같은 실수 반복 → `thewrong-ui-workflow/lessons/`에 "증상 → 원인 → 교훈"
+  - 복잡한 설계 결정 → `thewrong-ui-workflow/why-tho/`에 상황·판단·근거
+  - 반복되는 컴포넌트 패턴·체크리스트 → `thewrong-ui-workflow/cookbook/`
+  - 하네스는 실패에서 자란다 — 가상의 미래가 아니라 실제 발생한 것에만 규칙·훅 추가. (메타 원칙: `voltron-personal/bootstrap/`)
 
 ## 정체성
 
@@ -90,6 +94,11 @@ npm run build        # 라이브러리 빌드 (dist/)
 npm run typecheck    # tsc --noEmit
 npm run lint         # eslint src/
 ```
+
+## Git 전략
+
+`voltron-personal/guides/git-workflow.md` 참조 — `main` + `develop` + `feat/*` 3종. 보호 브랜치(`main`/`develop`) 직접 작업 금지.
+remote는 `github-personal` SSH host alias 사용 (`thewronghand` / `penfreak77@gmail.com`).
 
 ## 주의
 

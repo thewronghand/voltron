@@ -1,6 +1,8 @@
-# 하위 프로젝트(코드 레포)는 각자 git 관리 — voltron-personal 안에 물리적으로 중첩하되 추적 제외
-# (코드 레포는 각자 독립 git. 계층 상속을 위해 물리적으로 중첩만 하고 추적은 제외)
-thewrong-ui/
+# 코드 레포는 각자 독립 git — voltron-personal 안에 물리적으로 중첩(계층 상속용)하되 추적 제외.
+# 컨테이너 폴더(thewrong-ui/, escapist/) 자체와 그 안의 *-workflow/ 하네스는 voltron-personal git이 추적.
+# 코드 레포(*-code/)만 무시.
+thewrong-ui/thewrong-ui-code/
+escapist/escapist-code/
 
 # macOS
 .DS_Store
