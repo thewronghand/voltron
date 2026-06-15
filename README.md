@@ -17,7 +17,7 @@ voltron-personal/
   .claude/
     agents/reviewer.md   # 공통 리뷰 에이전트 (diff 기반 독립 리뷰)
     commands/ralph.md    # 큰 작업 분해 → 구현 → 리뷰 루프
-  <project>/             # 컨테이너 (thewrong-ui/, escapist/)
+  <project>/             # 컨테이너 (thewrong-ui/, escapist/, synapse/)
     CLAUDE.md            #   정본 — 프로젝트 정체성·정책 (상위 자동 상속)
     <project>-workflow/  #   하네스 (이 레포가 추적)
       hooks/             #     브랜치 가드 + 편집 시 컨벤션/타입 체크
@@ -62,3 +62,4 @@ voltron-personal/<project>/CLAUDE.md   # 프로젝트 정본 (자동 상속 — 
 |----------|-----------|------|
 | `thewrong-ui/` | [thewrong-ui](https://github.com/thewronghand/thewrong-ui) | 개인 React UI 컴포넌트 라이브러리 (@thewrong/ui) |
 | `escapist/` | [escapist](https://github.com/thewronghand/escapist) | Claude CLI 기반 면접 준비 앱 |
+| `synapse/` | [synapse](https://github.com/thewronghand/synapse) | 마크다운 PKM 데스크탑 앱 (Electron + Next, AI 챗봇·RAG) |

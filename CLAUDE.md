@@ -52,7 +52,7 @@ voltron-personal/
   .claude/
     agents/reviewer.md   ← 공통 에이전트
     commands/ralph.md    ← 공통 커맨드
-  <project>/             ← 컨테이너 (예: thewrong-ui/, escapist/)
+  <project>/             ← 컨테이너 (예: thewrong-ui/, escapist/, synapse/)
     CLAUDE.md            ← 정본 (프로젝트 정체성·정책) ★상위 자동 상속
     <project>-workflow/  ← 하네스 (voltron-personal git이 추적)
       hooks/             ← 프로젝트 전용 훅
@@ -77,3 +77,4 @@ voltron-personal/
 |----------|------|-----------|
 | `thewrong-ui/` | 개인용 React UI 컴포넌트 라이브러리 (@thewrong/ui) | thewronghand/thewrong-ui |
 | `escapist/` | Claude CLI 기반 면접 준비 앱 | thewronghand/escapist |
+| `synapse/` | 마크다운 PKM 데스크탑 앱 (Electron+Next, AI 챗봇/RAG) | thewronghand/synapse |
