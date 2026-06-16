@@ -20,6 +20,7 @@ Claude CLI 세션 기반 면접 준비 앱. 질문 등록 → 답변 평가 → 
 
 ## 작업 하네스
 
+- **세션 연결**: 작업 내용이 확정되면 `/voltron-bus`로 이 세션을 personal 버스에 연결할지 사용자에게 **제안한다** (연결명 `escapist-작업명`, 티켓 없음). 규칙 상세는 상위 `voltron-personal/CLAUDE.md`.
 - **큰 작업**: `/ralph` — 태스크 분해(사용자 승인) → 메인 구현 → `reviewer` 독립 리뷰 루프.
 - **구현 후 리뷰**: 탐색·여러 파일 변경은 `reviewer` 에이전트로 diff 기반 리뷰(구현 의도 미전달 — 자가평가 편향 방지). 1~2줄 수정은 생략.
 - **훅**: 편집 시 prettier + 컨벤션 체크(any/상대경로) + typecheck 자동 실행 (`escapist-workflow/hooks/`).
