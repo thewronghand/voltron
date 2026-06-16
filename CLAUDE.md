@@ -32,6 +32,26 @@
 - **`/ralph`** — 큰 작업 태스크 분해(사용자 승인) → 메인 구현 → `reviewer` 독립 리뷰 루프. (개인 프로젝트는 executor 없음 — 메인이 직접 구현)
 - **`reviewer`** — 구현 후 diff 기반 독립 리뷰. 구현 의도 미전달(자가평가 편향 방지).
 
+## inter-session — 세션 간 작업 관리 (`/voltron-bus`)
+
+개인 프로젝트 세션들을 한 곳에서 총괄하기 위해 inter-session 버스를 쓰되, **직접 쓰지 않고 `/voltron-bus` 와치 레이어를 경유한다** (회사판 voltron-bus의 정제 사본. inter-session 플러그인은 무수정). 스크립트: [`scripts/voltron-bus.py`](scripts/voltron-bus.py).
+
+**채널 격리** — 개인 작업은 **personal 채널(port 9474)** 단일 버스를 쓴다. 회사 작업(voltron 채널 9473)과 물리적으로 분리돼 broadcast가 넘나들지 않는다. 회사판과 로직은 동일하고 상단 설정(채널·sessions 경로·registry)만 personal로 교체돼 있다.
+
+**허브-스포크** — 개인 허브 세션 하나가 관제하고, 각 작업 세션이 personal 버스에 붙는다. 허브에서 list/send로 상태를 묻는다.
+
+- **auto-start off** — 관리 대상 세션만 버스에 남긴다.
+- **작업 세션 연결 규칙**: 작업 내용이 확정되면 사용자에게 "이 세션을 연결할까요?"라고 **명시적으로 묻는다**. 임의 연결 금지.
+- **연결 이름 = `프로젝트-작업명`** (소문자/하이픈, 40자 이내). **개인 프로젝트는 redmine 티켓이 없으므로 티켓 번호를 넣지 않는다** (회사판과의 핵심 차이). 접두사: `ui`(thewrong-ui)/`escapist`/`synapse`/`tarot`. chore는 `프로젝트-chore-작업명`. 예: `synapse-rag-pipeline`, `ui-chore-deps-bump`.
+- **연결은 `voltron-bus connect <연결명>` 경유** — registry-personal.json에 연결명↔cmux세션을 기록해야 `revive`/`reconnect`로 자동 복구된다. 출력된 모니터 커맨드를 Monitor로 띄운다.
+- **새 개인 프로젝트를 들일 때** — voltron-bus 설정 불필요(personal 채널 단일, cwd가 `~/dev/voltron-personal/` 하위면 자동). 접두사만 위 목록에 추가.
+- **워크트리를 늘릴 때** — 설정 불필요. 연결명에 워크트리 번호를 넣지 않는다(점유 워크트리는 cwd에서 `wt2`로 자동 표시). 전제: 워크트리 디렉토리는 `<코드디렉토리>-N` 패턴.
+- **재부팅 후 복구**: cmux `restore-session` → 허브에서 `voltron-bus revive-ongoing`. ongoing만 `claude --resume`으로 부활, completed는 제외돼 RAM을 아낀다. cmux 세션을 여는 것 자체는 수동이며, wrapper가 없애는 건 "연결명·채널을 다시 치는" 수고다.
+
+### 세션 총괄 일지 (`sessions/`)
+
+허브가 [`sessions/`](sessions/)로 작업 이력을 총괄한다. `ongoing/`(진행중)·`completed/`(마무리)가 곧 **voltron-bus의 status 단일 진실 소스**이고, ongoing↔completed 위치가 재부팅 후 자동부활 정책을 결정한다. 운영 방식은 [`sessions/README.md`](sessions/README.md) 참조.
+
 ## 하네스 진화
 
 하네스(CLAUDE.md, 훅, 에이전트, 가이드)를 손볼 때는 [`bootstrap/`](bootstrap/)을 먼저 본다.
