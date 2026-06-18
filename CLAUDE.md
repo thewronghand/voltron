@@ -40,6 +40,7 @@
 
 **허브-스포크** — 개인 허브 세션 하나가 관제하고, 각 작업 세션이 personal 버스에 붙는다. 허브에서 list/send로 상태를 묻는다.
 
+- **허브도 버스에 연결한다 (`personal-main`)** — 회사판 `voltron-main`과 대칭. 버스는 연결된 세션끼리만 메시지가 오가므로, 허브가 붙어 있지 않으면 작업 세션이 `send`로 **보고할 대상이 없다**. 허브를 `voltron-bus connect personal-main --label "관제 허브"` 로 연결하고 출력된 모니터 커맨드를 Monitor(persistent)로 띄워 보고를 수신한다. 작업 세션은 `send personal-main "status: ..."` 로 허브에 보고한다. 단 허브는 **작업이 아니므로 sessions/ongoing 일지를 만들지 않고**(registry+라이브로만 존재), `revive-ongoing` 자동부활 대상도 아니다. 재부팅 후 허브는 수동으로 다시 connect 한다.
 - **auto-start off** — 관리 대상 세션만 버스에 남긴다.
 - **작업 세션 연결 규칙**: 작업 내용이 확정되면 사용자에게 "이 세션을 연결할까요?"라고 **명시적으로 묻는다**. 임의 연결 금지.
 - **연결 이름 = `프로젝트-작업명`** (소문자/하이픈, 40자 이내). **개인 프로젝트는 redmine 티켓이 없으므로 티켓 번호를 넣지 않는다** (회사판과의 핵심 차이). 접두사: `ui`(thewrong-ui)/`escapist`/`synapse`/`tarot`. chore는 `프로젝트-chore-작업명`. 예: `synapse-rag-pipeline`, `ui-chore-deps-bump`.
@@ -84,12 +85,14 @@ voltron-personal/
     <project>-code/      ← 코드 레포 (.gitignore — 각자 독립 git)
 ```
 
-> **CLAUDE.md vs .claude/**: 상위 `CLAUDE.md`는 디렉토리 중첩으로 자동 상속되지만, `.claude/`(agents·commands·hooks·settings)는 git 레포 루트 것만 적용돼 상속 안 됨. 그래서 `.claude/`만 코드 레포에 복사한다.
+> **CLAUDE.md vs .claude/**: 상위 `CLAUDE.md`는 디렉토리 중첩으로 자동 상속되지만, `.claude/`(agents·commands·skills·hooks·settings)는 git 레포 루트 것만 적용돼 상속 안 됨. 그래서 `.claude/`만 코드 레포에 복사한다.
+>
+> **스킬 sync — 허브/스포크 분리**: 작업 세션(코드 레포)이 버스에 붙으려면 `voltron-bus-spoke` 미니 스킬(connect·reconnect·send만)이 코드 레포 `.claude/skills/`에 있어야 한다(스킬은 상속 안 됨). sync-claude.sh가 정본(`.claude/skills/voltron-bus-spoke/`)을 복사한다. **허브 관제 스킬 `voltron-bus`(list·revive·done)는 복사하지 않는다** — 허브 세션 전용. 미니 스킬을 고치면 sync로 재배포해야 코드 레포에 반영된다.
 >
 > **정본·공개·자동 sync**:
 > - 정본은 voltron-personal(비공개 하네스 레포)이 추적한다. 코드 레포의 `CLAUDE.md`·`.claude/`는 코드 레포 `.gitignore`로 빠져 **공개되지 않는다**.
 > - `CLAUDE.md`는 자동 상속이라 코드 레포에 사본조차 두지 않는다 (복사 안 함).
-> - `.claude/`는 voltron-personal의 정본 자산(`.claude/agents·commands`, `<project>-workflow/{hooks,settings.json}`)을 **편집하면 자동으로** 코드 레포에 sync된다 (`.claude/hooks/auto-sync-claude.sh`). 수동 실행도 가능: `bash <project>/<project>-workflow/sync-claude.sh`.
+> - `.claude/`는 voltron-personal의 정본 자산(`.claude/agents·commands·skills/voltron-bus-spoke`, `<project>-workflow/{hooks,settings.json}`)을 **편집하면 자동으로** 코드 레포에 sync된다 (`.claude/hooks/auto-sync-claude.sh`). 수동 실행도 가능: `bash <project>/<project>-workflow/sync-claude.sh`.
 
 ## 하위 프로젝트
 

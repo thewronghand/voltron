@@ -22,6 +22,12 @@ mkdir -p "$CODE_REPO/.claude/agents" "$CODE_REPO/.claude/commands" "$CODE_REPO/.
 cp "$VP_ROOT/.claude/agents/"*.md "$CODE_REPO/.claude/agents/"
 cp "$VP_ROOT/.claude/commands/"*.md "$CODE_REPO/.claude/commands/"
 
+# 작업 세션용 미니 스킬 voltron-bus-spoke (허브 전용 voltron-bus 스킬은 복사 안 함)
+# 스킬은 git 레포 루트 것만 적용되고 상속이 안 돼서, 작업 세션이 버스에 붙으려면 코드 레포에 있어야 한다.
+rm -rf "$CODE_REPO/.claude/skills/voltron-bus-spoke"
+mkdir -p "$CODE_REPO/.claude/skills/voltron-bus-spoke"
+cp "$VP_ROOT/.claude/skills/voltron-bus-spoke/SKILL.md" "$CODE_REPO/.claude/skills/voltron-bus-spoke/"
+
 # 프로젝트 전용 훅
 cp "$WORKFLOW_DIR/hooks/"*.sh "$CODE_REPO/.claude/hooks/"
 chmod +x "$CODE_REPO/.claude/hooks/"*.sh
@@ -31,5 +37,5 @@ if [ -f "$WORKFLOW_DIR/settings.json" ]; then
   cp "$WORKFLOW_DIR/settings.json" "$CODE_REPO/.claude/settings.json"
 fi
 
-echo "✓ 동기화 완료 → $CODE_REPO/.claude (agents·commands·hooks·settings)"
+echo "✓ 동기화 완료 → $CODE_REPO/.claude (agents·commands·skills/voltron-bus-spoke·hooks·settings)"
 echo "  CLAUDE.md는 상위 자동 상속 — 복사 안 함."
