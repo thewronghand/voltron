@@ -454,7 +454,7 @@ def cmd_send(args) -> int:
         # 대상이 registry에 없으면 현재 cwd 채널로 가정.
         port = port_for_channel(channel_for_cwd())
     return run_plugin(
-        "send.py", [args.to, args.text],
+        "send.py", ["--to", args.to, "--text", args.text],
         env_extra={"INTER_SESSION_PORT": str(port)},
     )
 

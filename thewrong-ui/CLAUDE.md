@@ -104,6 +104,5 @@ remote는 `github-personal` SSH host alias 사용 (`thewronghand` / `penfreak77@
 ## 주의
 
 - `.envrc` (GH_TOKEN 등)는 절대 커밋 금지 — `.gitignore`에 포함됨
-- publish 전 `package.json`의 `repository.url`을 `thewronghand` 계정으로 맞출 것
-  (현재 `github.com/euihyeon`로 되어있음)
+- `package.json`의 `repository.url`·`homepage`·`bugs`는 `thewronghand` 계정으로 맞춰져 있음 (0.1.0 publish 분 포함 확인됨)
 - `exports["./styles.css"]` 경로(`dist/style.css`)가 vite 산출물명과 일치하는지 빌드 후 확인
