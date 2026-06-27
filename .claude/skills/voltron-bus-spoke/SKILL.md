@@ -1,6 +1,6 @@
 ---
 name: voltron-bus-spoke
-description: 작업 세션(스포크)이 personal 버스에 붙고 허브에 보고하는 최소 스킬. "이 세션 버스에 연결해줘", "허브에 보고해줘", "재연결" 같은 요청에 사용. 허브 관제 기능(list·revive·done)은 없음 — 그건 허브 세션의 voltron-bus 스킬 담당.
+description: 작업 세션(스포크)이 personal 버스에 붙고 허브에 보고하는 최소 스킬. "이 세션 버스에 연결해줘", "허브에 보고해줘", "재연결", "버스에 어떤 세션 있어?" 같은 요청에 사용. 허브 관제 기능(revive·done)은 없음 — 그건 허브 세션의 voltron-bus 스킬 담당.
 ---
 
 # voltron-bus-spoke — 작업 세션용 버스 연결 (personal)
@@ -16,13 +16,15 @@ description: 작업 세션(스포크)이 personal 버스에 붙고 허브에 보
 python3 /Users/euihyeon/dev/voltron-personal/scripts/voltron-bus.py <subcommand>
 ```
 
-## 쓰는 서브커맨드 (이 셋만)
+## 쓰는 서브커맨드
 
 | 명령 | 용도 |
 |------|------|
 | `connect <연결명> [--label <텍스트>]` | 이 세션을 personal 버스에 연결. registry 기록 + 모니터 커맨드 출력. |
 | `reconnect` | 현재 세션 재연결 커맨드 출력 (재부팅·재개 후). completed면 skip. |
 | `send personal-main <텍스트>` | 허브에 보고. `status:` 접두사 권장. |
+| `send <연결명> <텍스트>` | 다른 스포크 세션에 직접 보고. 먼저 `list`로 연결명 확인 후 사용. |
+| `list` | 버스에 붙은 세션 목록 조회 (읽기 전용). 옆 세션 연결명 확인용. |
 
 ## 연결 흐름
 
@@ -49,4 +51,5 @@ python3 .../voltron-bus.py send personal-main "status: <연결명> — <무슨 �
 ## 주의
 
 - inter-session 플러그인 bin은 **절대 수정하지 않는다**.
-- 허브 명령(`list`/`revive-ongoing`/`done`)은 작업 세션이 쓰지 않는다 — 필요하면 허브에 보고해서 허브가 처리하게 한다.
+- `list`는 읽기 전용 — 세션 목록 조회만 가능. 관제 명령(`revive-ongoing`/`done`)은 작업 세션이 쓰지 않는다.
+- 옆 세션에 직접 `send`할 때는 먼저 `list`로 연결명 확인 후 보낸다. 허브(`personal-main`)에는 status/done 보고를 계속 보낸다.
