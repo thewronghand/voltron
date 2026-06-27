@@ -14,6 +14,8 @@ case "$branch" in
 esac
 
 file="${CLAUDE_TOOL_INPUT_FILE_PATH:-}"
+# 경로 미전달(빈 문자열)이면 차단 불가 — 허용
+[ -z "$file" ] && exit 0
 # 메타 파일은 보호 브랜치에서도 허용 (운영 코드와 라이프사이클이 다름)
 case "$file" in
   *.claude/*|*CLAUDE.md|*-workflow/*|*.md) exit 0 ;;

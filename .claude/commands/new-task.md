@@ -34,7 +34,13 @@
    - 분기 베이스는 항상 `origin/main` (git-workflow.md 규칙)
    - 분기 명령: `git checkout --no-track -b {branch} origin/main`
 
-5. **시작 보고**
+5. **voltron-bus 연결 제안**
+   - 작업이 확정됐으면 이 세션을 personal 버스에 연결할지 사용자에게 제안한다
+   - 연결명 형식: `프로젝트-작업명` (예: `escapist-logging-system`, `ui-chore-deps-bump`)
+   - 개인 프로젝트는 티켓 번호 없음 (회사판과 다름)
+   - 허브 세션에서는 `voltron-bus`, 작업 세션에서는 `voltron-bus-spoke` 사용
+
+6. **시작 보고**
    - 작업 폴더 경로
    - 추천 브랜치명
    - todo 흡수 여부
