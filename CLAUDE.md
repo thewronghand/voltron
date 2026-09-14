@@ -43,7 +43,7 @@
 - **허브도 버스에 연결한다 (`personal-main`)** — 회사판 `voltron-main`과 대칭. 버스는 연결된 세션끼리만 메시지가 오가므로, 허브가 붙어 있지 않으면 작업 세션이 `send`로 **보고할 대상이 없다**. 허브를 `voltron-bus connect personal-main --label "관제 허브"` 로 연결하고 출력된 모니터 커맨드를 Monitor(persistent)로 띄워 보고를 수신한다. 작업 세션은 `send personal-main "status: ..."` 로 허브에 보고한다. 단 허브는 **작업이 아니므로 sessions/ongoing 일지를 만들지 않고**(registry+라이브로만 존재), `revive-ongoing` 자동부활 대상도 아니다. 재부팅 후 허브는 수동으로 다시 connect 한다.
 - **auto-start off** — 관리 대상 세션만 버스에 남긴다.
 - **작업 세션 연결 규칙**: 작업 내용이 확정되면 사용자에게 "이 세션을 연결할까요?"라고 **명시적으로 묻는다**. 임의 연결 금지.
-- **연결 이름 = `프로젝트-작업명`** (소문자/하이픈, 40자 이내). **개인 프로젝트는 redmine 티켓이 없으므로 티켓 번호를 넣지 않는다** (회사판과의 핵심 차이). 접두사: `ui`(thewrong-ui)/`escapist`/`synapse`/`tarot`. chore는 `프로젝트-chore-작업명`. 예: `synapse-rag-pipeline`, `ui-chore-deps-bump`.
+- **연결 이름 = `프로젝트-작업명`** (소문자/하이픈, 40자 이내). **개인 프로젝트는 redmine 티켓이 없으므로 티켓 번호를 넣지 않는다** (회사판과의 핵심 차이). 접두사: `ui`(thewrong-ui)/`escapist`/`synapse`/`circuit`/`tarot`/`tc`(tactics-crawler). chore는 `프로젝트-chore-작업명`. 예: `synapse-rag-pipeline`, `ui-chore-deps-bump`.
 - **연결은 `voltron-bus connect <연결명>` 경유** — registry-personal.json에 연결명↔cmux세션을 기록해야 `revive`/`reconnect`로 자동 복구된다. 출력된 모니터 커맨드를 Monitor로 띄운다.
 - **새 개인 프로젝트를 들일 때** — voltron-bus 설정 불필요(personal 채널 단일, cwd가 `~/dev/voltron-personal/` 하위면 자동). 접두사만 위 목록에 추가.
 - **워크트리를 늘릴 때** — 설정 불필요. 연결명에 워크트리 번호를 넣지 않는다(점유 워크트리는 cwd에서 `wt2`로 자동 표시). 전제: 워크트리 디렉토리는 `<코드디렉토리>-N` 패턴.
@@ -101,3 +101,4 @@ voltron-personal/
 | `thewrong-ui/` | 개인용 React UI 컴포넌트 라이브러리 (@thewrong/ui) | thewronghand/thewrong-ui |
 | `escapist/` | Claude CLI 기반 면접 준비 앱 | thewronghand/escapist |
 | `synapse/` | 마크다운 PKM 데스크탑 앱 (Electron+Next, AI 챗봇/RAG) | thewronghand/synapse |
+| `circuit/` | UI 플레이그라운드 — UI 자체가 콘텐츠인 실험 갤러리 (Vite+React SPA) | thewronghand/circuit |
