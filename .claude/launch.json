@@ -4,8 +4,17 @@
     {
       "name": "circuit",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "circuit/circuit-code", "run", "dev", "--", "--port", "5273", "--strictPort"],
-      "port": 5273
+      "runtimeArgs": [
+        "--prefix",
+        "circuit/circuit-code",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "6273",
+        "--strictPort"
+      ],
+      "port": 6273
     }
   ]
 }
