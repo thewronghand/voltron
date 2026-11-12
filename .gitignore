@@ -6,6 +6,7 @@ escapist/escapist-code/
 synapse/synapse-code/
 circuit/circuit-code/
 shipping-a-button/shipping-a-button-code/
+thebooth/thebooth-code/
 
 # macOS
 .DS_Store
