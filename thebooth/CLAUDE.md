@@ -15,9 +15,9 @@ TJ·금영 반주기의 USB 재생('나의 MP3')에 그대로 꽂아 부를 수 
 
 ## 정체성
 
-- **성격**: 개인 연습용 데스크탑 앱. 상용 서비스·호스팅 없음. 배포는 본인 사용 기준(서명·공증은 필요해질 때).
+- **성격**: 개인 연습용 데스크탑 앱(macOS arm64·Windows x64). 상용 서비스·호스팅 없음. 배포는 본인 사용 기준(서명·공증은 필요해질 때).
 - **스택**: Electron(TS, 렌더러 React) 셸 + Python 처리 코어 사이드카(FastAPI). Python 환경은 앱에 넣은 `uv`로 첫 실행 시 구성. 상세·결정 이유는 기획 문서 "아키텍처"·"결정 기록".
-- **오디오 도구**: Demucs(보컬 분리), rubberband(키 변경), CREPE·basic-pitch(피치), WhisperX(가사 정렬), ffmpeg+libass(ASS `\k` 자막 렌더링).
+- **오디오 도구**: Demucs(보컬 분리, HF 고정 리비전), pedalboard(키 변경·오디오 IO, Rubber Band 내장), CREPE·basic-pitch(피치), WhisperX(가사 정렬), ffmpeg+libass(ASS `\k` 자막 렌더링).
 - **git**: 개인 계정 `thewronghand` (local config). 레포 `thewronghand/thebooth` — GitHub 레포는 아직 없음.
 
 ## 구조
