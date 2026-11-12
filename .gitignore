@@ -6,8 +6,12 @@ escapist/escapist-code/
 synapse/synapse-code/
 circuit/circuit-code/
 shipping-a-button/shipping-a-button-code/
+unity-lab/unity-lab-code/
 thebooth/thebooth-code/
 
 # macOS
 .DS_Store
 *.log
+
+# shipping-a-button local cluster volume backups
+shipping-a-button/backups/

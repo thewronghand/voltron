@@ -1,0 +1,1 @@
+label=u5000 k6_end=Completed counter_before=10136 counter_after=11724 SUMMARY {"reqs":58465,"rps":449.7236038987489,"failed":0.9641152826477379,"csv200":1480,"p50":0,"p95":7174.088035799997,"vusMax":5000}

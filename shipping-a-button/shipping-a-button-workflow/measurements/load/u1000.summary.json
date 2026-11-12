@@ -1,0 +1,91 @@
+{
+    "metrics": {
+        "csv_200": {
+            "rate": 16.933652420390217,
+            "count": 1694
+        },
+        "iterations": {
+            "count": 53837,
+            "rate": 538.1682676248807
+        },
+        "vus_max": {
+            "value": 1000,
+            "min": 1000,
+            "max": 1000
+        },
+        "http_req_tls_handshaking": {
+            "p(50)": 0,
+            "p(95)": 0,
+            "max": 0
+        },
+        "http_reqs": {
+            "count": 107674,
+            "rate": 1076.3365352497615
+        },
+        "http_req_duration": {
+            "p(50)": 0,
+            "p(95)": 10.882049999999985,
+            "max": 10982.71
+        },
+        "http_req_sending": {
+            "p(50)": 0,
+            "p(95)": 0.004,
+            "max": 1.8
+        },
+        "http_req_blocked": {
+            "p(50)": 0,
+            "p(95)": 0.135,
+            "max": 70.021
+        },
+        "http_req_connecting": {
+            "p(50)": 0,
+            "p(95)": 0.112,
+            "max": 70.004
+        },
+        "vus": {
+            "max": 1000,
+            "value": 100,
+            "min": 32
+        },
+        "http_req_duration{expected_response:true}": {
+            "p(50)": 3340.3205,
+            "p(95)": 9790.66355,
+            "max": 10982.71
+        },
+        "http_req_receiving": {
+            "p(50)": 0,
+            "p(95)": 0,
+            "max": 2.571
+        },
+        "data_received": {
+            "count": 11408973,
+            "rate": 114046.97948973827
+        },
+        "iteration_duration": {
+            "p(95)": 5883.586049599986,
+            "max": 20757.212083,
+            "p(50)": 1000.312583
+        },
+        "http_req_waiting": {
+            "p(50)": 0,
+            "p(95)": 10.832149999999862,
+            "max": 10982.614
+        },
+        "data_sent": {
+            "count": 521210,
+            "rate": 5210.146976405894
+        },
+        "http_req_failed": {
+            "passes": 104926,
+            "fails": 2748,
+            "value": 0.9744785184910006
+        }
+    },
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {}
+    }
+}

@@ -1,0 +1,24 @@
+# Chapter 1 — review round 4 (Claude opus, independent, fresh)
+
+- Target: `git diff main feat/chapter-1-architecture` at b37da1a
+- Verdict: **FAIL** — CRITICAL 0, HIGH 3, MEDIUM 4, LOW 2
+- Judged against the owner's HTTP boundary (2026-10-22): well-formed RFC 9112 requests must match Chapter 0; malformed input is C-14.
+- Verified clean: BigInt money end to end (reviver `source`, `rawJSON` emit); fee floor, period by transaction date, settlement +2; exact-count readiness and prefix-hash verification; counter dedupe across retries; pipelined requests admitted once; `/healthz` 404 live; 405 for HEAD/POST with method before route; STRICT PeerAuthentication and per-caller ALLOW policies live; token automount off; store images digest-pinned; limits ≈ 5.95 CPU / 9.5 GiB; no `any`, no `../`. `npm test` 44/44, `tsc` 0.
+
+## HIGH
+
+1. `infra/k8s/20-mesh.yaml:55-57` (ingress `http_protocol_options`) — unsupported minor versions accepted: `GET <target> HTTP/1.2` (also 1.9, 2.0, 0.9) → `HTTP/1.0 200`. Probed: `/m/M001/2026-07.html HTTP/1.2` and `HTTP/1.9` → 200; `/api/periods.json HTTP/1.2` without Host → 200. Chapter 0 (`^(\S+) (\S+) HTTP/1\.[01]$`) → 400/+0. `HTTP/1.2` matches RFC 9112 `HTTP-version = "HTTP/" DIGIT "." DIGIT`, so it is inside the must-match boundary and unregistered. CSV inferred 200/+1 vs 400/+0. Fix: reject any version other than 1.0/1.1 at ingress (check whether Envoy exposes the raw version before mapping to 1.0); if literally impossible, register exact rows and add raw fixtures.
+2. `infra/k8s/20-mesh.yaml` (both HCM patches; Istio default `upgradeConfigs: [{upgradeType: websocket}]` live on gateway and sidecar inbound) — `GET /api/periods.json` or `/m/M001/2026-07.html` with `Connection: Upgrade`, `Upgrade: websocket` → `HTTP/1.1 200`, `content-type: text/plain`, body `request failed\n` (local-reply format, not the page); with `Upgrade: foo` → 403. Chapter 0 ignores headers: 200 with correct bytes. Direct curl into the portal app returns correct 200 JSON, so the upstream wrote 200. CSV inferred: button `finish`es and publishes a press while the client receives non-statement bytes (200/+1 wrong bytes), or 403/+0 for other tokens. Breaks the byte-exact statement contract for a well-formed request. Fix: disable upgrade handling at ingress and inbound (override HCM `upgrade_configs` / strip `Upgrade` before routing); add parity fixtures.
+3. `README.md:178-200` (C-14 "Oversized header block 8,193 or 12,000 → 200/+1") and `infra/k8s/20-mesh.yaml:41` (`max_request_headers_kb: 16`) — live: 9,000- and 16,000-byte well-formed header blocks on `/api/periods.json` → 200 (Ch0 400/+0). Header blocks over 8,192 bytes are not malformed under RFC 9112, and the owner decision lists 8 KB headers as must-match. Round 3 diverged only in status (431/+0); round 4 turns it into a press divergence. Envoy's parse-time limit counts client headers before forwarding headers are added; the overhead that forced 16 KiB occurs at the sidecar and Node, not the ingress codec. Fix: `max_request_headers_kb: 8` at ingress (optionally a Lua canonical-size check), keep larger limits only on sidecar and Node, measure the residual thresholds and register only that narrow band.
+
+## MEDIUM
+
+4. Ingress HCM (Envoy `proxy_100_continue: false`) — `GET /api/periods.json` with `Expect: 100-continue` gets an interim `HTTP/1.1 100 Continue` before the 200; Chapter 0 sends one response. Final status/delta match, wire differs; `tools/raw-http.ts` `parseResponses` would reject it. Strip `Expect` at ingress or register.
+5. `docs/architecture/chapter-1.md:5,311,327`; `README.md:180,184` — still "pending orchestrator deployment", "No Docker or kubectl command was run". Round 4 is deployed; parity 147 cases, +21 passes. Update with verified results and dates; state what is still unmeasured (soak on r4, resources, 200,001-user run).
+6. `infra/up.sh:52-66` / `infra/istio.yaml` — Istio control-plane and proxy images pulled by mutable tag; the version gate checks only istioctl client and control-plane `meshVersion`, not data-plane proxies. Pin `values.global.hub/tag` to digests or pre-pull by digest into kind; assert proxy versions after rollout.
+7. `services/kernel/src/kafka.ts:73-80` + `http.ts:141-150` — during a broker outage `publishEvent` retries forever after the 200 is written; pending presses pile up; SIGTERM in that window hits the 20 s deadline and `process.exit(1)`, losing them. Document explicitly, or bound the wait and log lost event IDs.
+
+## LOW
+
+8. `infra/k8s/25-authorization.yaml:16-31` — all seven identities may connect to Kafka 9092; no topic ACLs, so portal or interactions could forge ButtonPressed. Note in the doc's identity table.
+9. `services/kernel/src/figures.ts:63,149` — `localeCompare` vs Chapter 0's byte-wise `cmp`. Identical for current ASCII data; use code-unit comparison for later chapters.
