@@ -1,7 +1,7 @@
 큰 작업을 태스크 단위로 분해하고 구현→리뷰 루프로 처리한다.
 
-> thewrong-ui는 1인 단일 레포라 별도 executor 에이전트를 쓰지 않는다.
-> **메인이 직접 구현하고, reviewer 에이전트가 독립적으로 리뷰**한다.
+> 구현은 **Codex executor(`codex exec`, gpt-6.1-terra max)** 또는 메인, 리뷰는 **Claude reviewer**가 독립적으로 한다.
+> 위임 기준·실행 명령·지시서 계약은 [`guides/codex-executor.md`](../../guides/codex-executor.md)가 정본이다.
 > (컨텍스트 분리 원칙: 짠 사람과 검토하는 사람이 같으면 같은 사각지대를 둘 다 못 본다.
 > reviewer는 별도 컨텍스트 + 구현 의도 미전달로 그 편향을 끊는다.)
 
@@ -17,12 +17,12 @@
 태스크를 순서대로 (blockedBy 선행 완료 후):
 
 1. TaskUpdate → in_progress
-2. **메인이 직접 구현** — 범위 경계를 지킨다. 범위 밖 작업이 필요하면 플래그만 하고 멈춰 사용자에게 보고.
-3. typecheck + (가능하면) build로 1차 자가검증
+2. **구현** — 5개 이상 파일·시행착오 예상이면 지시서를 써서 `codex exec`로 위임(백그라운드, 완료 알림 대기). 작으면 메인이 직접. 범위 밖 작업이 필요하면 플래그만 하고 멈춰 사용자에게 보고.
+3. 메인이 diff를 직접 보고 프로젝트 게이트(lint·typecheck·test)를 다시 돌려 EXIT로 확인 — executor 보고를 그대로 믿지 않는다
 4. **reviewer 에이전트 호출** — diff/변경 파일만 전달, **구현 의도·결정 이유는 전달하지 않는다.**
 5. reviewer PASS → completed
-6. reviewer FAIL → 피드백 반영해 수정 → 4번 복귀 (최대 3회)
-7. 3회 FAIL → **사용자에게 에스컬레이션** (자동 진행 중단)
+6. reviewer FAIL → 지적을 원문과 대조해 확인 → actionable findings만 executor에 새 라운드(resume)로 넘기거나 minor는 메인이 직접 수정 → fresh reviewer로 4번 복귀 (상한 없음)
+7. 같은 blocking finding 반복·리뷰 간 충돌·사용자 선택 필요·진전 불가 → **사용자에게 에스컬레이션** (자동 진행 중단)
 8. 다음 태스크
 
 ## Phase 2: 완료 보고
@@ -36,7 +36,7 @@
 
 - 모든 태스크 completed
 - 사용자 중단
-- 에스컬레이션 3회 누적
+- 위 에스컬레이션 조건 발생
 
 ## 주의
 

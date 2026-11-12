@@ -29,8 +29,9 @@
 
 복잡한 작업은 전문 에이전트에 위임. 메인 컨텍스트를 깨끗하게 유지.
 
-- **`/ralph`** — 큰 작업 태스크 분해(사용자 승인) → 메인 구현 → `reviewer` 독립 리뷰 루프. (개인 프로젝트는 executor 없음 — 메인이 직접 구현)
-- **`reviewer`** — 구현 후 diff 기반 독립 리뷰. 구현 의도 미전달(자가평가 편향 방지).
+- **`/ralph`** — 큰 작업 태스크 분해(사용자 승인) → 구현(executor 또는 메인) → `reviewer` 독립 리뷰 루프.
+- **executor = Codex CLI (`codex exec`, gpt-6.1-terra max)** — 5개 이상 파일 수정, 탐색·시행착오 예상, 구현이 길어질 때 위임한다. 1~4파일·리뷰 minor·스파이크는 메인이 직접. 실행 명령·지시서 계약·샌드박스 경로는 [`guides/codex-executor.md`](guides/codex-executor.md)가 정본이다 (시험 운용 2026-11-12~, 회사 voltron 방식 이식).
+- **`reviewer`** — 구현 후 diff 기반 독립 리뷰. 구현 의도 미전달(자가평가 편향 방지). executor가 코드를 바꿨으면 완료 보고 전 필수, PASS까지 반복(상한 없음, 반복 정체·충돌·사용자 판단 필요 시 에스컬레이션).
 
 ## inter-session — 세션 간 작업 관리 (`/voltron-bus`)
 
