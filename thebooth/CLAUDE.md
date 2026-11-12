@@ -17,7 +17,7 @@ TJ·금영 반주기의 USB 재생('나의 MP3')에 그대로 꽂아 부를 수 
 
 - **성격**: 개인 연습용 데스크탑 앱(macOS arm64·Windows x64). 상용 서비스·호스팅 없음. 배포는 본인 사용 기준(서명·공증은 필요해질 때).
 - **스택**: Electron(TS, 렌더러 React) 셸 + Python 처리 코어 사이드카(FastAPI). Python 환경은 앱에 넣은 `uv`로 첫 실행 시 구성. 상세·결정 이유는 기획 문서 "아키텍처"·"결정 기록".
-- **오디오 도구**: Demucs(보컬 분리, HF 고정 리비전), pedalboard(키 변경·오디오 IO, Rubber Band 내장), CREPE·basic-pitch(피치), WhisperX(가사 정렬), ffmpeg+libass(ASS `\k` 자막 렌더링).
+- **오디오 도구**: Demucs(보컬 분리 기본, HF 고정 리비전), Mel-Band RoFormer(옵트인 일반·가라오케, `bs-roformer==0.3.10` 고정), pedalboard(키 변경·오디오 IO, Rubber Band 내장), CREPE·basic-pitch(피치), WhisperX(가사 정렬), ffmpeg+libass(ASS `\k` 자막 렌더링).
 - **git**: 개인 계정 `thewronghand` (local config). 레포 `thewronghand/thebooth` — GitHub 레포는 아직 없음.
 
 ## 구조
@@ -36,6 +36,6 @@ thebooth/
 ## 작업 하네스
 
 - **세션 연결**: 작업 내용이 확정되면 `/voltron-bus-spoke`로 personal 버스 연결을 **제안한다** (연결명 `booth-작업명`, 예: `booth-vocal-separation`).
-- **큰 작업**: `/ralph` — 태스크 분해(사용자 승인) → 메인 구현 → `reviewer` 독립 리뷰 루프.
+- **큰 작업**: `/ralph` — 태스크 분해(사용자 승인) → 구현(5개+ 파일은 Codex executor `codex exec` gpt-6.1-terra max, 작으면 메인) → `reviewer` 독립 리뷰 루프. 정본 [`../guides/codex-executor.md`](../guides/codex-executor.md). Python 프로젝트라 `writable_roots`에 `~/.cache/uv`가 필요하다.
 - **구현 후 리뷰**: 5개 파일 이상/탐색 필요한 변경은 `reviewer` 에이전트로 diff 기반 리뷰.
 - **훅**: 보호 브랜치 가드 + 컨벤션 경고 (`thebooth-workflow/hooks/`).
