@@ -1,0 +1,30 @@
+// 준비 화면 확인: 1) 실제 모델 폴더(전부 설치됨) 2) 빈 HOME에서 htdemucs 받기 → 취소 → 다시 받기 → 완료
+import { launch, shot } from './launch.mjs'
+
+const real = await launch()
+await real.page.getByText('처리 엔진 준비됨').waitFor({ timeout: 60_000 })
+await real.page.getByText('htdemucs', { exact: true }).first().waitFor()
+await shot(real.page, 'prepare-installed')
+console.log('설치됨 화면 저장')
+await real.app.close()
+
+const fresh = await launch({ freshHome: true })
+const { page } = fresh
+await page.getByText('처리 엔진 준비됨').waitFor({ timeout: 60_000 })
+await shot(page, 'prepare-empty')
+const row = page.locator('li, article, section, div').filter({ hasText: 'htdemucs' }).filter({ has: page.getByRole('button', { name: '받기' }) }).last()
+await row.getByRole('button', { name: '받기' }).click()
+await page.getByText('%').first().waitFor({ timeout: 30_000 })
+await page.waitForTimeout(1500)
+await shot(page, 'prepare-downloading')
+await page.getByRole('button', { name: '취소' }).first().click()
+await page.waitForTimeout(3000)
+await shot(page, 'prepare-cancelled')
+console.log('취소 후 본문:', (await page.locator('main').innerText()).slice(0, 600))
+await page.getByRole('button', { name: /받기/ }).first().click()
+await page.getByText('설치됨').first().waitFor({ timeout: 300_000 })
+await page.waitForTimeout(500)
+await shot(page, 'prepare-done')
+console.log('완료 후 본문:', (await page.locator('main').innerText()).slice(0, 800))
+await fresh.app.close()
+console.log('HOME', fresh.home)
