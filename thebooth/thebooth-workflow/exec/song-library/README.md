@@ -31,3 +31,4 @@
 - 최종: 게이트 8종 EXIT=0, CLI 바이트 동일, 실제 앱 E2E 재통과.
 - 남은 것: Windows 실기 미검증(목록 조회 중 가사 파일을 잠깐 여는 동안 가사 교체·곡 삭제가 겹치면 실패할 수 있음 — 재시도로 풀림), LOW-1(앱은 `THEBOOTH_FFMPEG` 환경변수를 모르고 manifest ffmpeg 설치만 봄 — 개발 환경 한정).
 - E2E 출력은 `~/Downloads/yt-test/thebooth-out/library-e2e-*`(레포 밖), 임시 HOME은 시스템 임시 폴더.
+- **thewrong-ui 후속(사용자 결정 2026-11-13)**: avocado/ui 기반 thewrong-ui 개선 작업이 따로 진행 중이라, 끝나면 `@thewrong/ui`를 올리고 thebooth에 적용한다. 그때 걷어낼 우회: 남녀 전환 Select의 숨은 `<label htmlFor>`(Select가 `aria-label`을 버림), E2E가 Modal을 `role=dialog` 대신 버튼 이름으로 찾는 부분, Select 폭 고정 래퍼(`w-40`).
