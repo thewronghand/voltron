@@ -48,8 +48,12 @@ await step('곡 추가·만들기', async () => {
 await step('가사 탭 붙여넣기', async () => {
   await page.getByRole('tab', { name: '가사' }).click()
   await page.locator('#lyrics-text').fill(NAMU)
-  await page.getByText(/\d+블록 · 섹션 \d+개, 각주 \d+개 제거/).waitFor({ timeout: 30_000 })
-  console.log('  ', (await page.getByText(/\d+블록 · 섹션/).innerText()))
+  await page.getByText(/\d+블록 · .*섹션 \d+개, 각주 \d+개 제거/).waitFor({ timeout: 30_000 })
+  const ruby = page.getByRole('checkbox', { name: /루비 처리/ })
+  console.log('  루비 처리 기본값', await ruby.isChecked())
+  await ruby.check()
+  await page.getByText(/\d+블록 · (자동: )?원문·발음·번역 세 줄 형식/).waitFor({ timeout: 30_000 })
+  console.log('  ', (await page.getByText(/\d+블록 · /).innerText()))
   await shot(page, 'l1-paste')
 })
 
@@ -77,10 +81,19 @@ await step('저장하고 정렬', async () => {
   const alert = page.getByRole('alert')
   if (await alert.count()) console.log('  알림:', (await alert.first().innerText()).replace(/[぀-ヿ一-鿿]+/g, '…'))
   await page.getByRole('button', { name: '다음 · 타이밍' }).waitFor()
-  await page.waitForFunction(() => {
-    const button = [...document.querySelectorAll('button')].find((b) => b.textContent?.trim() === '다음 · 타이밍')
-    return button && !button.disabled
-  }, null, { timeout: 40 * 60_000 })
+  try {
+    await page.waitForFunction(() => {
+      const button = [...document.querySelectorAll('button')].find((b) => b.textContent?.trim() === '다음 · 타이밍')
+      return button && !button.disabled
+    }, null, { timeout: 5 * 60_000 })
+  } catch (error) {
+    // 진단: 버튼·안내·만들기 상태(가사 글자는 가린다)
+    const mask = (t) => t.replace(/[\u3040-\u30ff\u4e00-\u9fff\uac00-\ud7a3]{2,}/g, (m) => /정렬|타이밍|만들기|완료|필요|저장|확인|진행|분리|음표|가사|없음|오래/.test(m) ? m : '…')
+    console.log('  진단 가사 탭:', mask(await page.locator('#song-lyrics-panel').innerText()).slice(-600))
+    await page.getByRole('tab', { name: '만들기·내보내기' }).click()
+    console.log('  진단 만들기 탭:', mask(await page.locator('#song-make-panel').innerText()).slice(0, 400))
+    throw error
+  }
 })
 
 const exportOnce = async (label) => {
