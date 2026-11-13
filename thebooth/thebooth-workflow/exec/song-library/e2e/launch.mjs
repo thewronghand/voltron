@@ -43,7 +43,8 @@ export async function launch({ home }) {
   app.process().stderr?.on('data', (d) => { if (/Error|Traceback/.test(String(d))) process.stdout.write(`[main!] ${d}`) })
   const page = await app.firstWindow()
   page.on('console', (m) => { if (m.type() === 'error') console.log('[console error]', m.text()) })
-  await page.setViewportSize({ width: 1100, height: 900 }).catch(() => {})
+  // 뷰포트만 키우면 창(760px)보다 커져 아래쪽이 스크롤로 닿지 않는다 — 창 자체 크기를 바꾼다
+  await app.evaluate(({ BrowserWindow }) => { BrowserWindow.getAllWindows()[0]?.setContentSize(1100, 900) })
   const close = async () => { await app.close(); server.close() }
   return { app, page, close }
 }
