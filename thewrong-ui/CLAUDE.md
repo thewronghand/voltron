@@ -42,9 +42,13 @@
 
 - **CSS 자체포함**: 빌드 시 모든 스타일을 단일 CSS로 번들 (`cssCodeSplit: false`).
   소비자는 `import "@thewrong/ui/styles.css"` 한 줄이면 됨 — Tailwind 설치 불필요.
-- **테마 시스템**: `src/styles/theme.css`의 `@theme` 블록에 oklch 기반 색상 토큰 정의.
-  - 토큰 계열: `primary-*`, `secondary-*`(neutral), `error-*` (각 50~950)
-  - 소비자가 `:root`에서 CSS Variable(`--color-primary-500` 등)을 오버라이드하면 전체 테마 변경 가능
+- **토큰 2계층** (avocado 방식, 결정: `thewrong-ui-workflow/why-tho/2026-11-13-토큰-체계를-avocado-방식으로-재설계.md`):
+  - 프리미티브 `src/styles/primitives.css` — `--p-*` (색 스케일·radius·글자·그림자·모션 원료). 유틸을 만들지 않는다.
+  - 시맨틱 `src/styles/semantic.css` — 변수명이 곧 유틸(`--color-bg-surface` → `bg-bg-surface`, `rounded-control-medium`, `h-control-*`, `shadow-overlay`, `z-floating` 등). `.dark`에서 시맨틱만 재정의.
+  - 컴포넌트는 **시맨틱만** 쓴다. `dark:` variant·프리미티브·Tailwind 기본 팔레트·hex 금지 — `npm run check:tokens`가 막는다(기준선 래칫).
+  - 다크: `.dark` 클래스 하나(포털 컴포넌트까지 덮으려면 `<html>`에). 소비자는 시맨틱 변수를 `styles.css` 뒤에서 오버라이드한다.
+  - 배포: `./styles.css`(자체포함 컴파일본) + `./tokens.css`(소비자 Tailwind용 `@theme` 소스).
+  - 커스텀 유틸을 새로 쓰면 `src/lib/utils.ts`의 `cn` 그룹에도 등록한다(안 하면 className 병합이 무음 실패).
 
 ## 컴포넌트 구조 (컨벤션)
 
