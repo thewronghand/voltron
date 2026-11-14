@@ -1,4 +1,5 @@
-// 곡 보관함 E2E: 빈 목록 → 추가 Modal(폭탄마, 가라오케, 가사·보조) → 만들기 → 여러 키로 MP3·MP4 내보내기(두 번, 번호 붙이기) → 목록 Table
+// 곡 보관함 E2E: 빈 목록 → 추가 Modal(폭탄마, 가라오케) → 만들기 → 여러 키로 MP3 내보내기(두 번, 번호 붙이기) → 목록 Table
+// 가사는 3단계부터 곡 상세의 가사 탭에서 넣으므로(Modal에 가사 칸 없음) 여기서는 MP3만 본다 — 가사·MP4는 lyrics-editor·background-box E2E.
 // 파일·폴더 대화상자만 main 프로세스에서 대체하고 나머지는 화면 조작으로 진행한다.
 import { mkdirSync, readdirSync } from 'node:fs'
 import { launch, makeHome, shot } from './launch.mjs'
@@ -18,7 +19,7 @@ await app.evaluate(({ dialog }, q) => {
     const p = opts?.properties?.includes('openDirectory') ? q.folder : q.opens.shift()
     return { canceled: !p, filePaths: p ? [p] : [] }
   }
-}, { opens: [INPUT, `${SRC}/bomber-lyrics.txt`, `${SRC}/bomber-namu.txt`], folder: OUT })
+}, { opens: [INPUT], folder: OUT })
 
 const main = page.locator('main')
 const step = async (name, fn) => {
@@ -45,8 +46,6 @@ await step('추가 Modal', async () => {
   await page.getByRole('button', { name: '추가하고 만들기' }).waitFor()
   await dialog.getByRole('button', { name: '파일 선택', exact: true }).click()
   await dialog.getByRole('checkbox', { name: '가라오케 모드' }).check()
-  await dialog.getByRole('button', { name: '가사 파일 선택' }).click()
-  await dialog.getByRole('button', { name: '보조 파일 선택' }).click()
   await page.waitForTimeout(500)
   await shot(page, '2-add-modal')
 })
@@ -70,7 +69,6 @@ await step('추가하고 만들기', async () => {
 
 await step('내보내기 설정', async () => {
   const form = main.locator('section', { has: page.getByRole('heading', { name: '내보내기' }) })
-  await form.getByRole('checkbox', { name: 'MP4' }).check()
   await form.getByRole('button', { name: '키 한 반음 낮추기' }).click()
   await form.getByRole('button', { name: '키 한 반음 낮추기' }).click()
   await form.getByRole('button', { name: '키 추가' }).click()

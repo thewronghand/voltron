@@ -25,17 +25,47 @@ function serveRenderer() {
   return new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(server)))
 }
 
+export const PACKAGED = process.env.BOOTH_PACKAGED === '1'
+const PACKAGED_EXE = join(APP, 'dist/mac-arm64/thebooth.app/Contents/MacOS/thebooth')
+
 export function makeHome() {
   const home = mkdtempSync(join(tmpdir(), 'booth-lib-home-'))
   const data = join(home, 'Library/Application Support/thebooth')
   mkdirSync(data, { recursive: true })
   mkdirSync(join(home, 'Library/Caches'), { recursive: true })
   symlinkSync(join(homedir(), 'Library/Application Support/thebooth/models'), join(data, 'models'))
-  symlinkSync(join(homedir(), 'Library/Caches/thebooth'), join(home, 'Library/Caches/thebooth'))
+  if (PACKAGED) {
+    // 패키징 앱은 캐시 폴더에 uv 캐시(약 1GB)도 쓰므로 캐시 폴더 전체를 링크하지 않고
+    // 분리·음표·정렬 캐시만 링크한다(실제 사용자 캐시에 uv가 쓰지 않게).
+    const cache = join(home, 'Library/Caches/thebooth')
+    mkdirSync(cache, { recursive: true })
+    for (const name of ['separations', 'melody', 'alignment']) {
+      const real = join(homedir(), 'Library/Caches/thebooth', name)
+      if (existsSync(real)) symlinkSync(real, join(cache, name))
+    }
+  } else {
+    symlinkSync(join(homedir(), 'Library/Caches/thebooth'), join(home, 'Library/Caches/thebooth'))
+  }
   return home
 }
 
+async function launchPackaged(home) {
+  const env = { ...process.env, HOME: home }
+  for (const key of Object.keys(env)) if (key.startsWith('UV_') || key === 'VIRTUAL_ENV' || key.startsWith('THEBOOTH_') || key === 'ELECTRON_RENDERER_URL') delete env[key]
+  const app = await electron.launch({ executablePath: PACKAGED_EXE, args: [], env })
+  app.process().stderr?.on('data', (d) => { if (/Error|Traceback/.test(String(d))) process.stdout.write(`[main!] ${d}`) })
+  const page = await app.firstWindow()
+  page.on('console', (m) => { if (m.type() === 'error') console.log('[console error]', m.text()) })
+  await app.evaluate(({ BrowserWindow }) => { BrowserWindow.getAllWindows()[0]?.setContentSize(1100, 900) })
+  // 첫 실행: 실행 환경 구성(uv sync)이 끝나 곡 목록이 보일 때까지 기다린다
+  const started = Date.now()
+  await page.getByText('곡 보관함').first().waitFor({ timeout: 30 * 60_000 })
+  console.log(`[패키징] 곡 보관함 표시까지 ${Math.round((Date.now() - started) / 1000)}초, 출처 ${page.url()}`)
+  return { app, page, close: async () => { await app.close() } }
+}
+
 export async function launch({ home }) {
+  if (PACKAGED) return launchPackaged(home)
   const server = await serveRenderer()
   const url = `http://127.0.0.1:${server.address().port}`
   const env = { ...process.env, HOME: home, ELECTRON_RENDERER_URL: url, UV_CACHE_DIR: join(homedir(), '.cache/uv') }

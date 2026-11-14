@@ -1,7 +1,7 @@
 // 2단계 E2E: 곡 추가·만들기(캐시 적중) → 배경 이미지 지정 → 박스 기본값 켬 확인 → 1920×1080 MP4 내보내기 → 결과 해상도 확인
 // 1단계 launch.mjs(임시 HOME, 모델·캐시 링크, 빌드 렌더러 정적 서버)를 재사용한다. 배경 이미지는 ffmpeg로 만든 합성 이미지.
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, readdirSync } from 'node:fs'
+import { mkdirSync, readdirSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { launch, makeHome } from '../../song-library/e2e/launch.mjs'
@@ -16,14 +16,14 @@ mkdirSync(OUT, { recursive: true })
 const IMAGE = `${OUT}/합성 배경.jpg`
 execFileSync(FF, ['-v', 'error', '-y', '-f', 'lavfi', '-i', 'gradients=s=1200x1600:c0=0x2a6f4f:c1=0xf2d16b,drawgrid=w=200:h=200:t=4:c=white@0.6', '-frames:v', '1', IMAGE])
 
-const { app, page, close } = await launch({ home: makeHome() })
+const { app, page, close } = await launch({ home: process.env.BOOTH_HOME ?? makeHome() })
 await app.evaluate(({ dialog }, q) => {
   dialog.showOpenDialog = async (_w, options) => {
     const opts = options ?? _w
     const p = opts?.properties?.includes('openDirectory') ? q.folder : q.opens.shift()
     return { canceled: !p, filePaths: p ? [p] : [] }
   }
-}, { opens: [`${SRC}/Bomber (Re-Recording) [XifmeRdJCjo].mp3`, `${SRC}/bomber-lyrics.txt`, `${SRC}/bomber-namu.txt`, IMAGE], folder: OUT })
+}, { opens: [`${SRC}/Bomber (Re-Recording) [XifmeRdJCjo].mp3`, IMAGE], folder: OUT })
 
 const main = page.locator('main')
 const step = async (name, fn) => {
@@ -40,13 +40,24 @@ await step('추가하고 만들기', async () => {
   await page.getByRole('button', { name: '추가', exact: true }).click()
   await page.getByRole('button', { name: '파일 선택', exact: true }).click()
   await page.getByRole('checkbox', { name: '가라오케 모드' }).check()
-  await page.getByRole('button', { name: '가사 파일 선택' }).click()
-  await page.getByRole('button', { name: '보조 파일 선택' }).click()
   await page.getByRole('button', { name: '추가하고 만들기' }).click()
   await page.waitForFunction(() => {
     const button = [...document.querySelectorAll('button')].find((b) => b.textContent?.trim() === '폴더 선택')
     return button && !button.closest('fieldset')?.disabled
   }, null, { timeout: 10 * 60_000 })
+})
+
+await step('가사 탭에 가사 붙여넣기·정렬', async () => {
+  // 루비 없는 가사 파일 내용(일본어 가사만) → 한 줄이 한 블록인 형식으로 저장하고 정렬
+  await page.getByRole('tab', { name: '가사' }).click()
+  await page.locator('#lyrics-text').fill(readFileSync(`${SRC}/bomber-lyrics.txt`, 'utf-8'))
+  await page.getByText(/\d+블록 · .*한 줄이 한 블록/).waitFor({ timeout: 30_000 })
+  await page.getByRole('button', { name: '저장하고 정렬' }).click()
+  await page.getByRole('tab', { name: '만들기·내보내기' }).click()
+  await page.waitForFunction(() => {
+    const text = document.querySelector('#song-make-panel')?.textContent ?? ''
+    return text.includes('가사 정렬: 완료')
+  }, null, { timeout: 30 * 60_000 })
 })
 
 const form = main.locator('section', { has: page.getByRole('heading', { name: '내보내기' }) })
