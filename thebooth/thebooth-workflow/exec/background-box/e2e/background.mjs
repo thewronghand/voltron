@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process'
 import { mkdirSync, readdirSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import { launch, makeHome } from '../../song-library/e2e/launch.mjs'
+import { launch, makeHome, setChecked } from '../../song-library/e2e/launch.mjs'
 
 const SHOTS = '/Users/euihyeon/dev/voltron-personal/thebooth/thebooth-workflow/exec/background-box/screens'
 mkdirSync(SHOTS, { recursive: true })
@@ -39,7 +39,7 @@ await step('추가하고 만들기', async () => {
   await page.getByText('음원 파일을 끌어다 놓거나').waitFor({ timeout: 90_000 })
   await page.getByRole('button', { name: '추가', exact: true }).click()
   await page.getByRole('button', { name: '파일 선택', exact: true }).click()
-  await page.getByRole('checkbox', { name: '가라오케 모드' }).check()
+  await setChecked(page.getByRole('checkbox', { name: '가라오케 모드' }), true)
   await page.getByRole('button', { name: '추가하고 만들기' }).click()
   await page.waitForFunction(() => {
     const button = [...document.querySelectorAll('button')].find((b) => b.textContent?.trim() === '폴더 선택')
@@ -67,7 +67,7 @@ await step('MP4 선택 전 비활성 안내', async () => {
 })
 
 await step('배경 지정·박스 기본 켬', async () => {
-  await form.getByRole('checkbox', { name: 'MP4' }).check()
+  await setChecked(form.getByRole('checkbox', { name: 'MP4' }), true)
   console.log('배경 전 박스:', await form.getByRole('checkbox', { name: '자막 박스' }).isChecked())
   await form.getByRole('button', { name: '이미지 선택' }).click()
   await form.getByText('합성 배경.jpg').first().waitFor({ timeout: 20_000 })
@@ -75,7 +75,7 @@ await step('배경 지정·박스 기본 켬', async () => {
   console.log('배경 후 박스:', await form.getByRole('checkbox', { name: '자막 박스' }).isChecked())
   await form.getByRole('combobox', { name: '해상도' }).click()
   await page.getByRole('option', { name: /1920/ }).click()
-  await form.getByRole('checkbox', { name: 'MP3' }).uncheck()
+  await setChecked(form.getByRole('checkbox', { name: 'MP3' }), false)
   await form.getByRole('button', { name: '폴더 선택' }).click()
   await page.waitForTimeout(500)
   await shot(page, '2-export-background-box-1080')

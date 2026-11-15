@@ -2,7 +2,7 @@
 // 가사는 3단계부터 곡 상세의 가사 탭에서 넣으므로(Modal에 가사 칸 없음) 여기서는 MP3만 본다 — 가사·MP4는 lyrics-editor·background-box E2E.
 // 파일·폴더 대화상자만 main 프로세스에서 대체하고 나머지는 화면 조작으로 진행한다.
 import { mkdirSync, readdirSync } from 'node:fs'
-import { launch, makeHome, shot } from './launch.mjs'
+import { launch, makeHome, shot, setChecked } from './launch.mjs'
 
 const SRC = '/Users/euihyeon/Downloads/yt-test'
 const OUT = `${SRC}/thebooth-out/library-e2e-${Date.now()}`
@@ -41,11 +41,11 @@ await step('빈 목록', async () => {
 
 await step('추가 Modal', async () => {
   await page.getByRole('button', { name: '추가', exact: true }).click()
-  // @thewrong/ui Modal에는 role=dialog가 없어 페이지 기준으로 찾는다
-  const dialog = page
-  await page.getByRole('button', { name: '추가하고 만들기' }).waitFor()
+  // @thewrong/ui 0.3.0부터 Modal에 role=dialog가 있어 대화상자 안에서 찾는다
+  const dialog = page.getByRole('dialog')
+  await dialog.getByRole('button', { name: '추가하고 만들기' }).waitFor()
   await dialog.getByRole('button', { name: '파일 선택', exact: true }).click()
-  await dialog.getByRole('checkbox', { name: '가라오케 모드' }).check()
+  await setChecked(dialog.getByRole('checkbox', { name: '가라오케 모드' }), true)
   await page.waitForTimeout(500)
   await shot(page, '2-add-modal')
 })
@@ -81,7 +81,7 @@ await step('내보내기 설정', async () => {
   console.log('옵션들', await page.getByRole('option').allInnerTexts())
   await page.getByRole('option', { name: '여→남 -5' }).click()
   await form.getByRole('button', { name: '키 추가' }).click()
-  await form.getByRole('checkbox', { name: '멜로디 가이드' }).check()
+  await setChecked(form.getByRole('checkbox', { name: '멜로디 가이드' }), true)
   await form.getByRole('button', { name: '폴더 선택' }).click()
   await page.waitForTimeout(500)
   await shot(page, '5-export-filled')

@@ -80,3 +80,10 @@ export async function launch({ home }) {
 }
 
 export const shot = (page, name) => page.screenshot({ path: `${SHOTS}/${name}.png`, fullPage: true })
+
+// @thewrong/ui 0.3.0 Checkbox는 input을 sr-only로 숨기고 라벨이 감싼다 — 사용자처럼 라벨을 눌러 상태를 맞추고 결과를 확인한다
+export async function setChecked(box, on) {
+  if ((await box.isChecked()) === on) return
+  await box.locator('xpath=ancestor::label[1]').click()
+  if ((await box.isChecked()) !== on) throw new Error(`체크 상태가 ${on}로 바뀌지 않음`)
+}

@@ -2,7 +2,7 @@
 // → 타이밍 경계 이동·저장 → MP4 내보내기 전후 ASS 비교.
 // 가사가 보이는 화면은 스크래치(SHOTS_PRIVATE)에만 저장하고, 기록 폴더에는 가사 없는 화면만 둔다.
 import { mkdirSync, readFileSync, readdirSync } from 'node:fs'
-import { launch, makeHome } from '../../song-library/e2e/launch.mjs'
+import { launch, makeHome, setChecked } from '../../song-library/e2e/launch.mjs'
 
 const PRIVATE = process.env.SHOTS_PRIVATE ?? '/tmp'
 mkdirSync(PRIVATE, { recursive: true })
@@ -40,7 +40,7 @@ await step('곡 추가·만들기', async () => {
   await page.getByText('음원 파일을 끌어다 놓거나').waitFor({ timeout: 90_000 })
   await page.getByRole('button', { name: '추가', exact: true }).click()
   await page.getByRole('button', { name: '파일 선택', exact: true }).click()
-  await page.getByRole('checkbox', { name: '가라오케 모드' }).check()
+  await setChecked(page.getByRole('checkbox', { name: '가라오케 모드' }), true)
   await page.getByRole('button', { name: '추가하고 만들기' }).click()
   await exportEnabled()
 })
@@ -99,8 +99,8 @@ await step('저장하고 정렬', async () => {
 const exportOnce = async (label) => {
   await page.getByRole('tab', { name: '만들기·내보내기' }).click()
   const form = main.locator('section', { has: page.getByRole('heading', { name: '내보내기' }) })
-  await form.getByRole('checkbox', { name: 'MP4' }).check()
-  await form.getByRole('checkbox', { name: 'MP3' }).uncheck()
+  await setChecked(form.getByRole('checkbox', { name: 'MP4' }), true)
+  await setChecked(form.getByRole('checkbox', { name: 'MP3' }), false)
   await form.getByRole('button', { name: '폴더 선택' }).click()
   const before = readdirSync(OUT).filter((f) => f.endsWith('.mp4')).length
   await main.getByRole('button', { name: '내보내기', exact: true }).click()
